@@ -1,0 +1,8 @@
+{
+  "Description": "Track the number of times you press a key.",
+  "Name": "Telka",
+  "eu.stumpa.telka.action": {
+    "Name": "Telka",
+    "Tooltip": "How many times did you get pwned today? Keep track with this counter."
+  }
+}
