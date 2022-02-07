@@ -1,5 +1,10 @@
 import { WillAppear } from './incoming.interfaces';
-import { RegisterPlugin, SetGlobalSettings, SetImage } from './interfaces';
+import {
+  ActionInfo,
+  RegisterPlugin,
+  SetGlobalSettings,
+  SetImage,
+} from './interfaces';
 
 export function registerPlugin(
   event: 'registerPlugin',
@@ -9,6 +14,21 @@ export function registerPlugin(
     event,
     uuid,
   };
+}
+
+export function registerPropertyInspector(
+  event: 'registerPropertyInspector',
+  uuid: string,
+): RegisterPropertyInspector {
+  return {
+    event,
+    uuid,
+  };
+}
+
+export interface RegisterPropertyInspector {
+  event: 'registerPropertyInspector';
+  uuid: string;
 }
 
 export interface SetTitle {
@@ -53,5 +73,54 @@ export function setGlobalSettings(
     event: 'setGlobalSettings',
     context,
     payload,
+  };
+}
+
+export interface SetSettings {
+  event: 'setSettings';
+  context: string;
+  payload: any;
+}
+
+export function setSettings(context: string, payload: any): SetSettings {
+  return {
+    event: 'setSettings',
+    context,
+    payload,
+  };
+}
+
+export interface SendToPlugin {
+  action: string;
+  event: 'sendToPlugin';
+  context: string;
+  payload: any;
+}
+
+export function sendToPlugin(
+  actionInfo: ActionInfo,
+  payload: any,
+): SendToPlugin {
+  return {
+    action: actionInfo.action,
+    event: 'sendToPlugin',
+    context: actionInfo.context,
+    payload,
+  };
+}
+
+export interface SetState {
+  action: string;
+  event: 'setState';
+  context: string;
+  payload: { state: number };
+}
+
+export function setState(msg: WillAppear, state: number): SetState {
+  return {
+    action: msg.action,
+    event: 'setState',
+    context: msg.context,
+    payload: { state },
   };
 }

@@ -1,21 +1,8 @@
-import {
-  EMPTY,
-  filter,
-  map,
-  merge,
-  Observable,
-  of,
-  switchMap,
-  take,
-  tap,
-} from 'rxjs';
+import { filter, map, Observable, of, switchMap, take, tap } from 'rxjs';
 import { webSocket, WebSocketSubject } from 'rxjs/webSocket';
 
 import { getGlobalSettings } from '../actions';
-import {
-  isDidReceiveGlobalSettings,
-  isWillAppear,
-} from '../interfaces/incoming.interfaces';
+import { isDidReceiveGlobalSettings } from '../interfaces/incoming.interfaces';
 import { setGlobalSettings } from '../interfaces/outgoing.interfaces';
 import { ws } from '../main';
 import handshake from './handshake.json';
@@ -28,17 +15,12 @@ export function connectToLg(context: string): Observable<any> {
 
   let pointer = true;
 
+  setTimeout(() => {
+    ws?.next(getGlobalSettings(context));
+  });
+
   return ws!.pipe(
-    filter(isWillAppear),
-    switchMap((msg) =>
-      merge(
-        ws?.pipe(filter(isDidReceiveGlobalSettings)) || of(''),
-        of('').pipe(
-          tap(() => ws?.next(getGlobalSettings(context))),
-          switchMap(() => EMPTY),
-        ),
-      ),
-    ),
+    filter(isDidReceiveGlobalSettings),
     filter((x) => !!x),
     take(1),
     map((settings) => {
@@ -74,23 +56,23 @@ export function connectToLg(context: string): Observable<any> {
         uri: 'ssap://com.webos.service.networkinput/getPointerInputSocket',
       });
 
-      // lg?.next({
-      //   id: 'status_1',
-      //   type: 'subscribe',
-      //   uri: 'ssap://audio/getMute',
-      // });
+      lg?.next({
+        id: 'status',
+        type: 'subscribe',
+        uri: 'ssap://audio/getMute',
+      });
       // lg?.next({
       //   id: 'input_3',
       //   type: 'request',
       //   uri: 'ssap://tv/getExternalInputList',
       // });
+      lg?.next({
+        id: 'volume',
+        type: 'subscribe',
+        uri: 'ssap://audio/getVolume',
+      });
       // lg?.next({
-      //   id: 'status_4',
-      //   type: 'subscribe',
-      //   uri: 'ssap://audio/getVolume',
-      // });
-      // lg?.next({
-      //   id: 'channels_5',
+      //   id: 'channels',
       //   type: 'subscribe',
       //   uri: 'ssap://tv/getCurrentChannel',
       // });
@@ -104,11 +86,11 @@ export function connectToLg(context: string): Observable<any> {
       //   type: 'request',
       //   uri: 'ssap://system/getSystemInfo',
       // });
-      // lg?.next({
-      //   id: 'program_8',
-      //   type: 'subscribe',
-      //   uri: 'ssap://tv/getChannelCurrentProgramInfo',
-      // });
+      lg?.next({
+        id: 'program',
+        type: 'subscribe',
+        uri: 'ssap://tv/getChannelCurrentProgramInfo',
+      });
       // lg?.next({
       //   id: 'channels_7',
       //   type: 'request',
@@ -125,7 +107,6 @@ export function connectToLg(context: string): Observable<any> {
       //   uri: 'ssap://com.webos.service.networkinput/getPointerInputSocket',
       // });
     }),
-    tap(console.log),
   );
 }
 

@@ -1,4 +1,12 @@
-import { filter, mergeMap, Subscription, tap } from 'rxjs';
+import {
+  combineLatest,
+  filter,
+  startWith,
+  Subscription,
+  switchMap,
+  take,
+  tap,
+} from 'rxjs';
 import { webSocket, WebSocketSubject } from 'rxjs/webSocket';
 
 import {
@@ -9,24 +17,31 @@ import {
   WillDisappear,
 } from './interfaces/incoming.interfaces';
 import { IncomingMessages, OutgoingMessages } from './interfaces/interfaces';
-import { registerPlugin } from './interfaces/outgoing.interfaces';
+import {
+  isLgMute,
+  isLgProgram,
+  isLgVolume,
+  LgMute,
+  LgProgram,
+  LgVolume,
+} from './interfaces/lg.interface';
+import {
+  registerPlugin,
+  setImage,
+  setSettings,
+  setState,
+} from './interfaces/outgoing.interfaces';
 import {
   back,
-  eight,
+  button,
   enter,
-  five,
-  four,
-  nine,
-  one,
+  setChannel,
   setChannelDown,
   setChannelUp,
+  setMute,
+  setVolume,
   setVolumeDown,
   setVolumeUp,
-  seven,
-  six,
-  three,
-  two,
-  zero,
 } from './interfaces/outgoing.lg';
 import {
   connectToLg,
@@ -39,6 +54,11 @@ import {
 export let ws: WebSocketSubject<IncomingMessages | OutgoingMessages> | null =
   null;
 
+let lastLgMsgs: { volume: LgVolume | null; program: LgProgram | null } = {
+  volume: null,
+  program: null,
+};
+
 function connectElgatoStreamDeckSocket(
   inPort: string,
   inPluginUUID: string,
@@ -49,31 +69,9 @@ function connectElgatoStreamDeckSocket(
   );
 
   let actions: WillAppear[] = [];
-  // let actions: Record<
-  //   IncomingMessages['event'] | 'unknown',
-  //   (msg: IncomingMessages) => void
-  // > = {
-  //   willAppear,
-  //   unknown: (test: unknown) => {
-  //     console.log(test);
-  //   },
-  //   didReceiveGlobalSettings: () => {},
-  //   // deviceDidConnect: () => {},
-  //   // keyDown: () => {},
-  //   // keyUp: () => {},
-  //   // titleParametersDidChange: () => {},
-  //   // willDisappear: () => {},
-  // };
-
-  // ws.subscribe((msg) => {
-  //   (actions[(msg as IncomingMessages).event] || actions['unknown'])(
-  //     msg as IncomingMessages,
-  //   );
-  // });
 
   let subs: Subscription | undefined;
 
-  ws.next(registerPlugin(inRegisterEvent, inPluginUUID));
   ws.pipe(
     filter(isKeyUp),
     tap((msg) => {
@@ -82,20 +80,14 @@ function connectElgatoStreamDeckSocket(
         'eu.stumpa.telka.volume_up': setVolumeUp(),
         'eu.stumpa.telka.channel_down': setChannelDown(),
         'eu.stumpa.telka.channel_up': setChannelUp(),
+        'eu.stumpa.telka.mute': setMute(!!!msg.payload.state),
+        'eu.stumpa.telka.setvolume': setVolume(msg.payload.settings.volume),
+        'eu.stumpa.telka.setchannel': setChannel(msg.payload.settings.channel),
       };
 
       const pointerCommands = {
+        'eu.stumpa.telka.channel': button(msg.payload.settings.button),
         'eu.stumpa.telka.enter': enter(),
-        'eu.stumpa.telka.one': one(),
-        'eu.stumpa.telka.two': two(),
-        'eu.stumpa.telka.three': three(),
-        'eu.stumpa.telka.four': four(),
-        'eu.stumpa.telka.five': five(),
-        'eu.stumpa.telka.six': six(),
-        'eu.stumpa.telka.seven': seven(),
-        'eu.stumpa.telka.eight': eight(),
-        'eu.stumpa.telka.nine': nine(),
-        'eu.stumpa.telka.zero': zero(),
         'eu.stumpa.telka.back': back(),
       };
 
@@ -110,7 +102,7 @@ function connectElgatoStreamDeckSocket(
         lgPointer?.next(pointerPrep);
       }
     }),
-  ).subscribe(console.log);
+  ).subscribe();
 
   ws.pipe(filter((msg) => isWillAppear(msg) || isWillDisappear(msg))).subscribe(
     (msg) => {
@@ -119,8 +111,46 @@ function connectElgatoStreamDeckSocket(
 
         if (actions.length === 1) {
           const sub = connectToLg(inPluginUUID)
-            .pipe(mergeMap(() => connectToPointer()))
-            .subscribe();
+            .pipe(
+              take(1),
+              switchMap(() =>
+                combineLatest([lg!, connectToPointer().pipe(startWith(null))]),
+              ),
+            )
+            .subscribe(([lgMsg]: [LgMute | LgProgram, any]) => {
+              if (isLgMute(lgMsg)) {
+                const msg = actions.find(
+                  (a) => a.action === 'eu.stumpa.telka.mute',
+                );
+
+                if (!msg) return;
+
+                ws?.next(setState(msg, +lgMsg.payload.mute));
+              } else if (isLgProgram(lgMsg)) {
+                const action = actions.find(
+                  (a) => a.action === 'eu.stumpa.telka.info',
+                );
+
+                if (!action) return;
+                ws?.next(
+                  setSettings(action.context, {
+                    ...action.payload.settings,
+                    channelId: lgMsg.payload.channelId,
+                  }),
+                );
+
+                lastLgMsgs.program = lgMsg;
+                nowPlaying(action);
+              } else if (isLgVolume(lgMsg)) {
+                const action = actions.find(
+                  (a) => a.action === 'eu.stumpa.telka.info',
+                );
+                if (!action) return;
+
+                lastLgMsgs.volume = lgMsg;
+                nowPlaying(action);
+              }
+            });
 
           subs?.add(sub);
         }
@@ -137,29 +167,40 @@ function connectElgatoStreamDeckSocket(
     },
   );
 
-  ws.subscribe();
+  ws.next(registerPlugin(inRegisterEvent, inPluginUUID));
 }
 
-// const willAppear = (msg: WillAppearMessage) => {
-//   console.log(msg);
-//   connectToLg();
+function nowPlaying(action: WillAppear): void {
+  const canvas = document.createElement('canvas');
+  canvas.width = 144;
+  canvas.height = 144;
 
-//   const canvas = document.createElement('canvas');
-//   canvas.width = 144;
-//   canvas.height = 144;
+  const ctx = canvas.getContext('2d')!;
+  //0aa74766b754a07e334b50d240c3ca55
+  ctx.font = '25px Arial';
+  ctx.fillStyle = '#FFF';
 
-//   const ctx = canvas.getContext('2d')!;
-//   //0aa74766b754a07e334b50d240c3ca55
-//   ctx.font = '22px Arial';
-//   ctx.fillStyle = '#FF0000';
-//   ctx.fillText('Ahojky', 50, 50);
+  ctx.fillText(lastLgMsgs.volume?.payload.volume.toString() || '?', 15, 27);
+  ctx.fillText(lastLgMsgs.program?.payload.channelName || '', 15, 50);
+  ctx.fillText(
+    lastLgMsgs.program?.payload.programName.toString() || '?',
+    15,
+    75,
+  );
+  ctx.fillText(
+    lastLgMsgs.program?.payload.localEndTime
+      .split(',')
+      .splice(3, 2)
+      .join(':')
+      .toString() || '?',
+    15,
+    100,
+  );
 
-//   const img = canvas.toDataURL();
+  const img = canvas.toDataURL();
 
-//   ws?.next(setImage(msg, img));
-
-//   // setTimeout(() => ws.next(setTitle(msg, 'Ahoj')), 100);
-// };
+  ws?.next(setImage(action, img));
+}
 
 (window as any)['connectElgatoStreamDeckSocket'] =
   connectElgatoStreamDeckSocket;

@@ -1,7 +1,7 @@
 {
   "scripts": {
-    "build": "esbuild main.ts --bundle --outfile=bundle.js --target=es2015  --minify",
-    "build:dev": "esbuild main.ts --bundle --outfile=bundle.js --target=es2015"
+    "build": "esbuild main.ts --bundle --outfile=bundle.js --target=es2015  --minify && esbuild pi/main.ts --bundle --outfile=pi/bundle.js --target=es2015  --minify",
+    "build:dev": "esbuild main.ts --bundle --outfile=bundle.js --target=es2015 && esbuild pi/main.ts --bundle --outfile=pi/bundle.js --target=es2015"
   },
   "dependencies": {
     "esbuild": "^0.14.18",

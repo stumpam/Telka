@@ -6,10 +6,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>eu.stumpa.telka</title>
     <link rel="stylesheet" href="css/sdpi.css" />
+    <script src="bundle.js"></script>
   </head>
   <body>
-    <div class="sdpi-wrapper">
-      <div class="sdpi-item">
+    <div class="sdpi-wrapper" style="display: none">
+      <!-- <div class="sdpi-item">
         <div class="sdpi-item-label">IP adresa</div>
         <input
           type="text"
@@ -17,6 +18,27 @@
           class="sdpi-item-value"
           value="192.168.0.13"
         />
+      </div> -->
+
+      <div class="sdpi-item">
+        <div class="sdpi-item-label" id="label">Hodnota</div>
+        <input
+          type="number"
+          class="sdpi-item-value"
+          id="value"
+          min="0"
+          max="10"
+        />
+      </div>
+
+      <div class="sdpi-item">
+        <button class="sdpi-item-value" id="mybutton">Uložit</button>
+      </div>
+    </div>
+    <div class="sdpi-wrapper" style="display: none">
+      <div class="sdpi-item">
+        <div class="sdpi-item-label">Id kanálu</div>
+        <input type="text" id="program" class="sdpi-item-value" />
       </div>
     </div>
   </body>

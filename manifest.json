@@ -2,146 +2,6 @@
   "Actions": [
     {
       "Icon": "actionIcon",
-      "Name": "Tlačítko 1",
-      "States": [
-        {
-          "Image": "actionDefaultImage",
-          "TitleAlignment": "middle",
-          "FontSize": "16"
-        }
-      ],
-      "SupportedInMultiActions": true,
-      "Tooltip": "Tlačítko 1 na ovladači.",
-      "UUID": "eu.stumpa.telka.one"
-    },
-    {
-      "Icon": "actionIcon",
-      "Name": "Tlačítko 2",
-      "States": [
-        {
-          "Image": "actionDefaultImage",
-          "TitleAlignment": "middle",
-          "FontSize": "16"
-        }
-      ],
-      "SupportedInMultiActions": true,
-      "Tooltip": "Tlačítko 2 na ovladači.",
-      "UUID": "eu.stumpa.telka.two"
-    },
-    {
-      "Icon": "actionIcon",
-      "Name": "Tlačítko 3",
-      "States": [
-        {
-          "Image": "actionDefaultImage",
-          "TitleAlignment": "middle",
-          "FontSize": "16"
-        }
-      ],
-      "SupportedInMultiActions": true,
-      "Tooltip": "Tlačítko 3 na ovladači.",
-      "UUID": "eu.stumpa.telka.three"
-    },
-    {
-      "Icon": "actionIcon",
-      "Name": "Tlačítko 4",
-      "States": [
-        {
-          "Image": "actionDefaultImage",
-          "TitleAlignment": "middle",
-          "FontSize": "16"
-        }
-      ],
-      "SupportedInMultiActions": true,
-      "Tooltip": "Tlačítko 4 na ovladači.",
-      "UUID": "eu.stumpa.telka.four"
-    },
-    {
-      "Icon": "actionIcon",
-      "Name": "Tlačítko 5",
-      "States": [
-        {
-          "Image": "actionDefaultImage",
-          "TitleAlignment": "middle",
-          "FontSize": "16"
-        }
-      ],
-      "SupportedInMultiActions": true,
-      "Tooltip": "Tlačítko 5 na ovladači.",
-      "UUID": "eu.stumpa.telka.five"
-    },
-    {
-      "Icon": "actionIcon",
-      "Name": "Tlačítko 6",
-      "States": [
-        {
-          "Image": "actionDefaultImage",
-          "TitleAlignment": "middle",
-          "FontSize": "16"
-        }
-      ],
-      "SupportedInMultiActions": true,
-      "Tooltip": "Tlačítko 6 na ovladači.",
-      "UUID": "eu.stumpa.telka.six"
-    },
-    {
-      "Icon": "actionIcon",
-      "Name": "Tlačítko 7",
-      "States": [
-        {
-          "Image": "actionDefaultImage",
-          "TitleAlignment": "middle",
-          "FontSize": "16"
-        }
-      ],
-      "SupportedInMultiActions": true,
-      "Tooltip": "Tlačítko 7 na ovladači.",
-      "UUID": "eu.stumpa.telka.seven"
-    },
-    {
-      "Icon": "actionIcon",
-      "Name": "Tlačítko 8",
-      "States": [
-        {
-          "Image": "actionDefaultImage",
-          "TitleAlignment": "middle",
-          "FontSize": "16"
-        }
-      ],
-      "SupportedInMultiActions": true,
-      "Tooltip": "Tlačítko 8 na ovladači.",
-      "UUID": "eu.stumpa.telka.eight"
-    },
-    {
-      "Icon": "actionIcon",
-      "Name": "Tlačítko 9",
-      "States": [
-        {
-          "Image": "actionDefaultImage",
-          "TitleAlignment": "middle",
-          "FontSize": "16"
-        }
-      ],
-      "SupportedInMultiActions": true,
-      "Tooltip": "Tlačítko 9 na ovladači.",
-      "UUID": "eu.stumpa.telka.nine"
-    },
-    {
-      "Icon": "actionIcon",
-      "Name": "Tlačítko 0",
-      "States": [
-        {
-          "Image": "actionDefaultImage",
-          "TitleAlignment": "middle",
-          "FontSize": "16"
-        }
-      ],
-      "SupportedInMultiActions": true,
-      "Tooltip": "Tlačítko 0 na ovladači.",
-      "UUID": "eu.stumpa.telka.zero"
-    },
-    {
-      "Icon": "actionIcon",
       "Name": "Tlačítko snížení hlasitosti",
       "States": [
         {
@@ -173,9 +33,10 @@
       "Name": "Tlačítko ztišení",
       "States": [
         {
-          "Image": "actionDefaultImage",
-          "TitleAlignment": "middle",
-          "FontSize": "16"
+          "Name": "mute"
+        },
+        {
+          "Name": "unmute"
         }
       ],
       "SupportedInMultiActions": true,
@@ -187,9 +48,7 @@
       "Name": "Tlačítko zvýšení programu",
       "States": [
         {
-          "Image": "actionDefaultImage",
-          "TitleAlignment": "middle",
-          "FontSize": "16"
+          "Name": "default"
         }
       ],
       "SupportedInMultiActions": true,
@@ -253,8 +112,7 @@
       "UUID": "eu.stumpa.telka.back"
     },
     {
-      "Icon": "actionIcon",
-      "Name": "Counter",
+      "Name": "Tlačítko kanálu",
       "States": [
         {
           "Image": "actionDefaultImage",
@@ -263,8 +121,34 @@
         }
       ],
       "SupportedInMultiActions": true,
-      "Tooltip": "How many times did you get pwned today? Keep track with this counter.",
-      "UUID": "eu.stumpa.telka.action"
+      "Tooltip": "Numerické tlačítko na ovladači.",
+      "UUID": "eu.stumpa.telka.channel"
+    },
+    {
+      "Name": "Nastavit kanál",
+      "States": [
+        {
+          "Image": "actionDefaultImage",
+          "TitleAlignment": "middle",
+          "FontSize": "16"
+        }
+      ],
+      "SupportedInMultiActions": true,
+      "Tooltip": "Nastaví kanál daného čísla.",
+      "UUID": "eu.stumpa.telka.setChannel"
+    },
+    {
+      "Name": "Nastavit hlasitost",
+      "States": [
+        {
+          "Image": "actionDefaultImage",
+          "TitleAlignment": "middle",
+          "FontSize": "16"
+        }
+      ],
+      "SupportedInMultiActions": true,
+      "Tooltip": "Nastaví hlasitost daného čísla.",
+      "UUID": "eu.stumpa.telka.setVolume"
     }
   ],
   "SDKVersion": 2,
