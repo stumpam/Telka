@@ -176,30 +176,48 @@ function nowPlaying(action: WillAppear): void {
   canvas.height = 144;
 
   const ctx = canvas.getContext('2d')!;
-  //0aa74766b754a07e334b50d240c3ca55
-  ctx.font = '25px Arial';
+  ctx.font = '30px Arial';
   ctx.fillStyle = '#FFF';
 
-  ctx.fillText(lastLgMsgs.volume?.payload.volume.toString() || '?', 15, 27);
-  ctx.fillText(lastLgMsgs.program?.payload.channelName || '', 15, 50);
+  const channelNameText = lastLgMsgs.program?.payload.channelName || '';
+  const channelName = ctx.measureText(channelNameText);
   ctx.fillText(
-    lastLgMsgs.program?.payload.programName.toString() || '?',
-    15,
-    75,
+    channelNameText,
+    channelName.width <= 130 ? calculateWidth(channelName) : 8,
+    30,
   );
+
+  const programNameText =
+    lastLgMsgs.program?.payload.programName.toString() || '';
+  const programName = ctx.measureText(programNameText);
+  const longName = programNameText.length > 9;
+
   ctx.fillText(
+    longName ? programNameText.slice(0, 9) : programNameText,
+    programName.width <= 130 ? calculateWidth(programName) : 8,
+    longName ? 62 : 80,
+  );
+  if (longName) {
+    ctx.fillText(programNameText.slice(9).trim(), 8, 92);
+  }
+
+  ctx.fillText(lastLgMsgs.volume?.payload.volume.toString() ?? '', 15, 127);
+
+  const timeText =
     lastLgMsgs.program?.payload.localEndTime
       .split(',')
       .splice(3, 2)
       .join(':')
-      .toString() || '?',
-    15,
-    100,
-  );
+      .toString() || '?';
+  ctx.fillText(timeText, 60, 127);
 
   const img = canvas.toDataURL();
 
   ws?.next(setImage(action, img));
+}
+
+function calculateWidth(text: TextMetrics): number {
+  return 144 / 2 - text.width / 2;
 }
 
 (window as any)['connectElgatoStreamDeckSocket'] =
